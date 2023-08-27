@@ -18,8 +18,6 @@
 #define DURATION_MAX        -1
 #define NOTE_STOP           -1
 
-#define DEFAULT_RECLAIM_PERIOD 2
-
 using namespace std;
 
 
@@ -225,7 +223,7 @@ void playSong(SteamControllerInfos* controller,const ParamsStruct params){
         long currentTick = MidiFile_getTickFromTime(midifile,timeElapsedSince(tOrigin));
 
         //Every reclaimPeriod seconds, reclaim the controller to avoid timeouts
-        if(timeElapsedSince(tRestart) > params.reclaimPeriod){
+        if(params.reclaimPeriod > 0 && timeElapsedSince(tRestart) > params.reclaimPeriod){
             tRestart = std::chrono::steady_clock::now();
             SteamController_Close(&steamController1);
             SteamController_Claim(&steamController1);
@@ -280,10 +278,6 @@ void playSong(SteamControllerInfos* controller,const ParamsStruct params){
 
     cout <<endl<< "Playback completed " << endl;
 }
-
-
-
-
 
 bool parseArguments(int argc, char** argv, ParamsStruct* params){
     int c;
@@ -349,7 +343,7 @@ int main(int argc, char** argv)
     params.libusbDebugLevel = LIBUSB_LOG_LEVEL_NONE;
     params.repeatSong = false;
     params.midiSong = "\0";
-    params.reclaimPeriod = DEFAULT_RECLAIM_PERIOD;
+    params.reclaimPeriod = 0;
 
 
     //Parse arguments
